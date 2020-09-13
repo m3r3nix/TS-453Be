@@ -35,7 +35,7 @@ void command_fan(u_int32_t *speed) {
         exit(EXIT_FAILURE);
     }
 
-    u_int16_t max_fan_speed = 1720;
+    u_int16_t max_fan_speed = 3800;
 
     u_int8_t status_value = 0xFF;
     int8_t status_ret = it8528_get_fan_status(0, &status_value);
@@ -51,7 +51,7 @@ void command_fan(u_int32_t *speed) {
             exit(EXIT_FAILURE);
         }
 
-        double percent = speed_value / ((double) max_fan_speed - 15) * 100;
+	double percent = (speed_value / (double) max_fan_speed) * 100;
         if (percent > 100.0) {
             percent = 100;
         }
@@ -64,13 +64,47 @@ void command_fan(u_int32_t *speed) {
             exit(EXIT_FAILURE);
         }
 
-        // Note: the formula to convert from fan speed to RPM is approximately:
-        //       rpm = 7 * fan_speed - 17
-
-        // Convert from fan speed percentage to fan speed
-        float fan_speed = (max_fan_speed * *speed / 100);
-        fan_speed += 17;
-        fan_speed /= 7;
+        // Convert from given fan speed percentage to linux fan speed.
+	// It depends on fan caracteristic.
+	// These parameters are perfect for TBS-453A 
+	u_int8_t fan_speed;
+	switch(*speed) {
+		case 100 :
+			fan_speed = 255;
+			break;
+                case 90 :
+                        fan_speed = 220;
+                        break;
+                case 80 :
+                        fan_speed = 180;
+                        break;
+                case 70 :
+                        fan_speed = 150;
+                        break;
+                case 60 :
+                        fan_speed = 120;
+                        break;
+                case 50 :
+                        fan_speed = 90;
+                        break;
+                case 40 :
+                        fan_speed = 65;
+                        break;
+                case 30 :
+                        fan_speed = 50;
+                        break;
+                case 20 :
+                        fan_speed = 30;
+                        break;
+                case 10 :
+                        fan_speed = 16;
+                        break;
+                case 0 :
+                        fan_speed = 0;
+                        break;
+		default :
+	 	        fprintf(stderr, "Please use percentage like 0/10/20/30...100!\n");
+	}
 
         if(it8528_set_fan_speed(0, (u_int8_t) fan_speed) != 0) {
             fprintf(stderr, "Can't set fan speed!\n");
