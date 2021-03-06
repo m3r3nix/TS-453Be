@@ -35,7 +35,7 @@ void command_fan(u_int32_t *speed) {
         exit(EXIT_FAILURE);
     }
 
-    u_int16_t max_fan_speed = 3800;
+    u_int16_t max_fan_speed = 4100;
 
     u_int8_t status_value = 0xFF;
     int8_t status_ret = it8528_get_fan_status(0, &status_value);
@@ -97,7 +97,7 @@ void command_fan(u_int32_t *speed) {
                         fan_speed = 30;
                         break;
                 case 10 :
-                        fan_speed = 16;
+                        fan_speed = 18;
                         break;
                 case 0 :
                         fan_speed = 0;
